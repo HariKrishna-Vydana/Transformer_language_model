@@ -157,7 +157,7 @@ def main():
             ct="model_epoch_"+str(epoch)+"_sample_"+str(trs_no)+"_"+str(mean(L_train_cost))+"___"+str(mean(L_val_cost))
             print(ct)
             torch.save(model.state_dict(),join(args.model_dir,str(ct)))
-            torch.save(optimizer.state_dict(),join(args.model_dir,str(ct)+'_opt'))                
+            #torch.save(optimizer.state_dict(),join(args.model_dir,str(ct)+'_opt'))                
 
             ###open the file write and close it to avoid delays
             with open(args.weight_text_file,'a+') as weight_saving_file:

@@ -197,8 +197,7 @@ class Trans_LM(nn.Module):
         return output_dict
 
 #==========================================================================
-
-    def prediction_from_trained_model(self,ys,scores_list,):
+    def prediction_from_trained_model(self,ys,scores_list):
                 """####this function is accessed from the decoder to get the output from the decoder,
                    and this could be used for model ensembling an
                    ####when this function is called with prediceted label sequences,
@@ -206,19 +205,18 @@ class Trans_LM(nn.Module):
                 """
                 non_pad_mask = torch.ones_like(ys).float().unsqueeze(-1) # 1xix1
                 slf_attn_mask = get_subsequent_mask(ys)
-
+                
                 # -- Forward
-                embd_output = self.tgt_word_emb(ys_in_pad)
-
+                embd_output = self.tgt_word_emb(ys)
                 ###no pos_embeding as said in ACHEN paper
                 if self.use_pos_emb:
                         dec_output=self.positional_encoding(embd_output)
                 else:
                         dec_output=embd_output
-
+                
+                dec_output = self.Lin_proj_norm(self.Lin_proj(dec_output))
                 for dec_layer in self.layer_stack:
                     dec_output, _, _ = dec_layer(dec_output,
-                                                        encoder_outputs,
                                                         non_pad_mask=None,
                                                         slf_attn_mask=slf_attn_mask,
                                                         dec_enc_attn_mask=None)

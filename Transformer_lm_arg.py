@@ -54,6 +54,7 @@ parser.add_argument("--strict_load_weights_flag",metavar='',type=int,default=1,h
 #---------------------------
 
 ####bactching parameers
+parser.add_argument("--Transformer_LM",metavar='',type=str,default='models/Default_folder',help="model_dir")
 parser.add_argument("--model_dir",metavar='',type=str,default='models/Default_folder',help="model_dir")
 parser.add_argument("--batch_size",metavar='',type=int,default='10',help="batch_size")
 parser.add_argument("--max_batch_label_len",metavar='',type=int,default='5000',help="max_batch_label_len")

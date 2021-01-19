@@ -23,20 +23,40 @@ def train_val_model(**kwargs):
         ###################################################################
         optimizer.zero_grad() 
         Word_target = torch.LongTensor(smp_word_label)
+        Word_target = Word_target.cuda() if args.gpu else Word_target
+        #==========================================================================================
+        #------------------------------------------------------------------------------------------
+        if trainflag:
+            OOM=False          
+            try:
+                Decoder_out_dict = model(Word_target)
+            except Exception as e:
+                if 'CUDA out of memory' in str(e):
+                    OOM=True
+                    torch.cuda.empty_cache()
+                    print("The model in OOM condition","smp_no",smp_no,"batch size for the batch is:",Word_target.shape)
+            #==========================================================================================
+            if OOM:
+                batch_size = Word_target.shape[0]
+                Word_target = Word_target[:-batch_size]
 
-        #--------------------------------
-        Decoder_out_dict = model(Word_target)
+                print("The model running under OOM condition","smp_no",smp_no,"batch size for the batch is:",Word_target.shape)
+                Decoder_out_dict = model(Word_target)
+        #==============================================
+        else:
+            with torch.no_grad():
+                Decoder_out_dict = model(Word_target)
         cost = Decoder_out_dict.get('cost')
         
+        #=========================================================================================
+        #-----------------------------------------------------------------------------------------
         if trainflag and not (torch.isinf(cost).any() or torch.isnan(cost).any()):
+                cost = cost/args.accm_grad
                 cost.backward()
-
                 if args.clip_grad_norm != 0:
                         torch.nn.utils.clip_grad_norm_(model.parameters(),args.clip_grad_norm)
 
-                cost = cost/args.accm_grad
                 cost.detach()
-
                 ###gradient accumilation
                 if(smp_no%args.accm_grad)==0:
                     optimizer.step()

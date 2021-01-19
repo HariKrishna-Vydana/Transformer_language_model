@@ -15,7 +15,7 @@ def Initialize_Trans_model(args):
 
         # Initialize the Transformer model
         model = Trans_LM(args)         
-        print(model,count_parameters(model)/1000000)
+        print(count_parameters(model)/1000000)
         model = model.cuda() if args.gpu else model
 
         trainable_parameters=list(model.parameters())
